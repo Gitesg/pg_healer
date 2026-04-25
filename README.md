@@ -81,7 +81,7 @@ flowchart LR
 
 **`--auto`** — fully autonomous. Acts immediately. Every action logged with full before/after state.
 
-Destructive actions like dropping indexes are never taken automatically — only suggested.
+
 
 ---
 
