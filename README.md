@@ -1,4 +1,4 @@
-# pghealer
+# pghealer(wip)
 
 > Autonomous Postgres connection pool agent. Detects, diagnoses, fixes, and verifies pool problems — without waking you up.
 
