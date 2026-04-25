@@ -43,27 +43,26 @@ Everything is visible in a live terminal dashboard. Every action is logged with 
 ## Architecture
 
 ```mermaid
-flowchart TD
-    subgraph pghealer["pghealer"]
-        OBS["Observer\n─────────\npg_stat_activity\npg_locks\npg_stat_statements\nevery 1s"]
-        DET["Detector\n─────────\nrules engine\nanomaly detection"]
-        DIA["Diagnoser\n─────────\nClaude API\nroot cause\nplain English"]
-        EXE["Executor\n─────────\nterminate backend\ncreate index\nrollback txn"]
-        VER["Verifier\n─────────\nbefore / after\nSQLite audit log"]
-        DSH["Dashboard\n─────────\nbubbletea\nlive TUI"]
+flowchart LR
+    subgraph App
+        DB[(Postgres)]
     end
 
-    PG[("Postgres\n─────────\npg_stat_activity\npg_locks\npg_stat_statements")]
-    AI["Claude API\n─────────\ndiagnosis +\nrecommended fix"]
+    subgraph pghealer [pghealer Agent]
+        A[Observer] --> B[Detector]
+        B --> C{Decision}
+        C -->|Manual| D[TUI Dashboard]
+        C -->|Auto| E[Executor]
+        E --> F[Verifier]
+    end
 
-    OBS -->|snapshot| DET
-    DET -->|anomaly| DIA
-    DIA -->|diagnosis| EXE
-    EXE -->|action result| VER
-    OBS --> DSH
+    subgraph AI
+        G[Claude/OpenAI]
+    end
 
-    pghealer <-->|queries| PG
-    DIA <-->|prompt / response| AI
+    B <--> G
+    F -->|Audit Log| H[(SQLite)]
+    pghealer <--> DB
 ```
 
 ---
