@@ -44,25 +44,20 @@ Everything is visible in a live terminal dashboard. Every action is logged with 
 
 ```mermaid
 flowchart LR
-    subgraph App
-        DB[(Postgres)]
+    PG[("Postgres\npg_stat_activity\npg_locks\npg_stat_statements")]
+ 
+    subgraph loop["agent loop"]
+        direction LR
+        A[Observer\nevery 1s] -->|snapshot| B[Detector\nrules engine]
+        B -->|anomaly| C[Diagnoser\nClaude API]
+        C -->|diagnosis| D[Executor\nterminate / index / rollback]
+        D -->|result| E[Verifier\nbefore vs after]
     end
-
-    subgraph pghealer [pghealer Agent]
-        A[Observer] --> B[Detector]
-        B --> C{Decision}
-        C -->|Manual| D[TUI Dashboard]
-        C -->|Auto| E[Executor]
-        E --> F[Verifier]
-    end
-
-    subgraph AI
-        G[Claude/OpenAI]
-    end
-
-    B <--> G
-    F -->|Audit Log| H[(SQLite)]
-    pghealer <--> DB
+ 
+    PG -->|queries| A
+    C <-->|prompt / response| AI["Claude API"]
+    A --> DSH[Dashboard\nbubbletea TUI]
+    E --> LOG[SQLite\naudit log]
 ```
 
 ---
